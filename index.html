@@ -96,6 +96,7 @@
             fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${movie.imdbID}`)
                 .then(response => response.json())
                 .then(details => {
+                    // console.log(details);
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td><img src="${movie.poster}" class="img-thumbnail" alt="${movie.poster}" /></td>
