@@ -66,7 +66,7 @@
         const type = document.getElementById('type').value;
         
 
-        fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${title}&type=${type}`)
+        fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${title}&type=${type}`)
             .then(response => response.json())
             .then(data => {
                 if (data.Response === 'True') {
@@ -93,7 +93,7 @@
 
         movies.forEach(movie => {
             // Pobieramy szczegóły dla każdego filmu
-            fetch(`http://www.omdbapi.com/?apikey=${apiKey}&i=${movie.imdbID}`)
+            fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${movie.imdbID}`)
                 .then(response => response.json())
                 .then(details => {
                     const row = document.createElement('tr');
