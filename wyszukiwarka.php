@@ -61,7 +61,7 @@
     const apiKey = '67bd5e94';
 
     document.getElementById('search-form').addEventListener('submit', function(event) {
-        
+        event.preventDefault();
         const title = document.getElementById('title').value;
         const type = document.getElementById('type').value;
         
