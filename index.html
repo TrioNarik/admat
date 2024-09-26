@@ -59,24 +59,47 @@
     <script>
     let movieData = [];
     const apiKey = '67bd5e94';
+    let currentTitle = '';
+    let currentType = ''; 
 
     document.getElementById('search-form').addEventListener('submit', function(event) {
         event.preventDefault();
-        const title = document.getElementById('title').value;
-        const type = document.getElementById('type').value;
-        
+        currentTitle = document.getElementById('title').value;
+        currentType = document.getElementById('type').value;
+        movieData = []; // Resetuj 
+        searchAllMovies(currentTitle, currentType); // Funkcja pobierająca wszystkie filmy
+    });
 
-        fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${title}&type=${type}`)
+    function searchAllMovies(title, type) {
+        
+        fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${title}&type=${type}&page=1`)
             .then(response => response.json())
             .then(data => {
                 if (data.Response === 'True') {
-                    movieData = data.Search.map(result => ({
-                        poster: result.Poster !== "N/A" ? result.Poster : 'https://fakeimg.pl/200x300?text=Brak+plakatu',
-                        title: result.Title,
-                        year: result.Year,
-                        imdbID: result.imdbID
-                    }));
-                    displayMovies(movieData);
+                    const totalResults = parseInt(data.totalResults); 
+                    const totalPages = Math.ceil(totalResults / 10); 
+
+                    // Pobierz wyniki z każdej strony
+                    let promises = [];
+                    for (let page = 1; page <= totalPages; page++) {
+                        promises.push(fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${title}&type=${type}&page=${page}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                return data.Search.map(result => ({
+                                    poster: result.Poster !== "N/A" ? result.Poster : 'https://fakeimg.pl/200x300?text=Brak+plakatu',
+                                    title: result.Title,
+                                    year: result.Year,
+                                    imdbID: result.imdbID
+                                }));
+                            }));
+                    }
+
+                    // Czekaj na wszystkie odpowiedzi
+                    Promise.all(promises).then(results => {
+                        // Połącz wyniki ze wszystkich stron
+                        movieData = results.flat();
+                        displayMovies(movieData);
+                    });
                 } else {
                     alert('Nie znaleziono wyników');
                 }
@@ -84,7 +107,7 @@
             .catch(error => {
                 console.error('Błąd:', error);
             });
-    });
+    }
 
     // Funkcja wyświetlająca filmy
     function displayMovies(movies) {
@@ -96,7 +119,6 @@
             fetch(`https://www.omdbapi.com/?apikey=${apiKey}&i=${movie.imdbID}`)
                 .then(response => response.json())
                 .then(details => {
-                    // console.log(details);
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td><img src="${movie.poster}" class="img-thumbnail" alt="${movie.poster}" /></td>
@@ -133,8 +155,6 @@
                 });
         });
     }
-
-    
 </script>
 
 </body>
